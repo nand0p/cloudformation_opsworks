@@ -27,7 +27,7 @@ then
 fi
 keyName=www
 stackName="www-$(date +%Y%m%d-%H%M)"
-cfnFile="file://www_opsworks.json"
+cfnFile="file://cloudformation.json"
 clear
 echo
 echo "vpc $stackName creation"
