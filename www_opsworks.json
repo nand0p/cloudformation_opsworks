@@ -217,7 +217,7 @@
         "UseOpsworksSecurityGroups": "False",
         "VpcId": { "Ref": "wwwVPC" },
         "UseCustomCookbooks": "True",
-        "HostnameTheme": "Europe_Cities",
+        "HostnameTheme": "Scottish_Islands",
         "ConfigurationManager": { 
           "Version": "12",
           "Name": "Chef" 
