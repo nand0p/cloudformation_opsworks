@@ -25,6 +25,7 @@ then
     echo
     exit
 fi
+keyName=www
 stackName="www-$(date +%Y%m%d-%H%M)"
 cfnFile="file://www_opsworks.json"
 clear
@@ -32,7 +33,7 @@ echo
 echo "vpc creation $title $stackName"
 echo
 echo
-echo "==> create $stackName key-pair:"
+echo "==> create $stackName key-pair $keyName:"
 privateKeyValue=$(aws ec2 create-key-pair --key-name $stackName --query 'KeyMaterial' --output text)
 echo
 echo
@@ -46,7 +47,7 @@ cfnParameters+=" ParameterKey=public2CIDR,ParameterValue=$WWW_PUBLIC2_CIDR "
 cfnParameters+=" ParameterKey=wwwTrustedIP,ParameterValue=$WWW_TRUSTED_IP "
 cfnParameters+=" ParameterKey=opsworksRoleARN,ParameterValue=$WWW_OPSWORKS_ROLE_ARN "
 cfnParameters+=" ParameterKey=opsworksProfileARN,ParameterValue=$WWW_OPSWORKS_PROFILE_ARN "
-cfnParameters+=" ParameterKey=KeyName,ParameterValue=$stackName "
+cfnParameters+=" ParameterKey=KeyName,ParameterValue=$keyName "
 echo $cfnParameters
 echo
 echo
@@ -60,10 +61,11 @@ echo "==> wait for stack:"
 sleep 10
 echo
 echo
-echo "==> Write out private key $stackName.pem:"
+echo "==> Write out private key $keyName.pem:"
 echo
 echo
-aws cloudformation describe-stacks --stack-name $stackName|grep PrivateKey -A22|cut -f3 > $stackName.pem
-chmod -c 0400 $stackName.pem
+rm -fv $keyName.pem
+aws cloudformation describe-stacks --stack-name $stackName|grep PrivateKey -A22|cut -f3 > $keyName.pem
+chmod -c 0400 $keyName.pem
 echo
 echo

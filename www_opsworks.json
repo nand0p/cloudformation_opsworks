@@ -240,7 +240,7 @@
         "CustomRecipes": {
           "Configure" : [],
           "Deploy" : [],
-          "Setup" : [ "cookbook_hex7" ],
+          "Setup" : [ "cookbook_hex7", "cookbook_www" ],
           "Shutdown" : [],
           "Undeploy" : []
         }
@@ -260,7 +260,7 @@
         "CustomRecipes": {
           "Configure" : [],
           "Deploy" : [],
-          "Setup" : [ "cookbook_damnswank" ],
+          "Setup" : [ "cookbook_damnswank", "cookbook_www" ],
           "Shutdown" : [],
           "Undeploy" : []
         }

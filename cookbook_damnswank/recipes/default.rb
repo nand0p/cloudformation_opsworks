@@ -6,3 +6,7 @@
 #
 # All rights reserved - Do Not Redistribute
 #
+
+package 'epel-release'
+package 'nginx'
+package 'php-fpm'
