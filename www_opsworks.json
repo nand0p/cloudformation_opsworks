@@ -216,6 +216,7 @@
         "UseOpsworksSecurityGroups": "False",
         "VpcId": { "Ref": "wwwVPC" },
         "UseCustomCookbooks": "True",
+        "HostnameTheme": "Europe_Cities",
         "ConfigurationManager": { 
           "Version": "12",
           "Name": "Chef" 
