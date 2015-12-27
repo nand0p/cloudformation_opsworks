@@ -207,7 +207,7 @@
         "VpcId": { "Ref": "wwwVPC" },
         "UseCustomCookbooks": "True",
         "ConfigurationManager": { 
-          "Version": "11.10",
+          "Version": "12",
           "Name": "Chef" 
         },
         "CustomCookbooksSource": {
@@ -226,8 +226,14 @@
         "Name" : { "Ref": "AWS::StackName" },
         "Shortname" : "www",
         "StackId" : { "Ref": "wwwOpsworksStack" },
-        "Type" : "php-app",
-        "Packages": [ "jwhois" ]
+        "Type" : "custom",
+        "CustomRecipes": {
+          "Configure" : [],
+          "Deploy" : [],
+          "Setup" : [ "opsworks_cookbook" ],
+          "Shutdown" : [],
+          "Undeploy" : []
+        }
       }
     },
     "wwwOpsworksLayerHexseven": {
@@ -241,7 +247,13 @@
         "Shortname" : "www-hex7",
         "StackId" : { "Ref": "wwwOpsworksStack" },
         "Type" : "custom",
-        "Packages": [ "jwhois" ]
+        "CustomRecipes": {
+          "Configure" : [],
+          "Deploy" : [],
+          "Setup" : [ "opsworks_cookbook" ],
+          "Shutdown" : [],
+          "Undeploy" : []
+        }
       }
     },
     "wwwOpsworksLayerDamnswank": {
@@ -255,7 +267,13 @@
         "Shortname" : "www-damnswank",
         "StackId" : { "Ref": "wwwOpsworksStack" },
         "Type" : "custom",
-        "Packages": [ "jwhois" ]
+        "CustomRecipes": {
+          "Configure" : [],
+          "Deploy" : [],
+          "Setup" : [ "opsworks_cookbook" ],
+          "Shutdown" : [],
+          "Undeploy" : []
+        }
       }
     },
     "wwwOpsworksApp": {
@@ -265,7 +283,7 @@
         "Description": "hex7 deployment",
         "Name": { "Ref": "AWS::StackName" },
         "StackId": { "Ref": "wwwOpsworksStack" },
-        "Type": "php"
+        "Type": "other"
       }
     },
     "wwwOpsworksAppHex7": {
