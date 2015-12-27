@@ -231,11 +231,11 @@
     "wwwOpsworksLayerWWW": {
       "Type": "AWS::OpsWorks::Layer",
       "Properties": {
+        "EnableAutoHealing" : "False",
         "AutoAssignElasticIps" : "False",
         "AutoAssignPublicIps" : "True",
         "CustomSecurityGroupIds" :  [ { "Ref": "wwwSecurityGroup" } ],
-        "EnableAutoHealing" : "False",
-        "Name": { "Fn::Join" : [ "-", [ { "Ref": "AWS::StackName" }, "hex7" ] ] },
+        "Name": { "Fn::Join" : [ "-", [ { "Ref": "AWS::StackName" }, "www" ] ] },
         "Shortname" : "www",
         "StackId" : { "Ref": "wwwOpsworksStack" },
         "Type" : "custom",
@@ -250,15 +250,18 @@
     },
     "wwwOpsworksLayerHex7": {
       "Type": "AWS::OpsWorks::Layer",
+      "DependsOn": "wwwOpsworksLayerWWW",
       "Properties": {
+        "EnableAutoHealing": "False",
+        "AutoAssignElasticIps": "False",
+        "AutoAssignPublicIps" : "True",
         "Name": { "Fn::Join" : [ "-", [ { "Ref": "AWS::StackName" }, "hex7" ] ] }, 
-        "Shortname" : "www-hex7",
+        "Shortname" : "www.hex7.com",
         "StackId" : { "Ref": "wwwOpsworksStack" },
         "Type" : "custom",
-        "EnableAutoHealing" : "False",
         "CustomRecipes": {
-          "Configure" : [ "cookbook_hex7:configure" ],
-          "Deploy" : [ "cookbook_hex7:deploy", "cookbook_restart" ],
+          "Configure" : [ "cookbook_hex7" ],
+          "Deploy" : [ "cookbook_hex7:deploy", "cookbook_www:restart" ],
           "Setup" : [],
           "Shutdown" : [],
           "Undeploy" : []
@@ -267,14 +270,17 @@
     },
     "wwwOpsworksLayerDamnswank": {
       "Type": "AWS::OpsWorks::Layer",
+      "DependsOn": "wwwOpsworksLayerWWW",
       "Properties": {
+        "EnableAutoHealing": "False",
+        "AutoAssignElasticIps": "False",
+        "AutoAssignPublicIps" : "True",
         "Name": { "Fn::Join" : [ "-", [ { "Ref": "AWS::StackName" }, "damnswank" ] ] }, 
-        "Shortname" : "www-damnswank",
+        "Shortname" : "www.damnswank.com",
         "StackId" : { "Ref": "wwwOpsworksStack" },
         "Type" : "custom",
-        "EnableAutoHealing" : "False",
         "CustomRecipes": {
-          "Configure" : [ "cookbook_damnswank:configure" ],
+          "Configure" : [ "cookbook_damnswank" ],
           "Deploy" : [ "cookbook_damnswank:deploy", "cookbook_www:restart" ],
           "Setup" : [],
           "Shutdown" : [],
