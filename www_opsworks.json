@@ -177,7 +177,11 @@
         },
         "RootDeviceType": "ebs",
         "InstanceType": { "Ref": "instanceType" },
-        "LayerIds":  [ { "Ref": "wwwOpsworksLayer" } ],
+        "LayerIds":  [
+          { "Ref": "wwwOpsworksLayer" },
+          { "Ref": "wwwOpsworksLayerHexseven" },
+          { "Ref": "wwwOpsworksLayerDamnswank" } 
+        ],
         "SshKeyName": { "Ref": "KeyName" },
         "StackId": { "Ref": "wwwOpsworksStack" },
         "SubnetId": { "Ref": "wwwSubnetPublic1" },
