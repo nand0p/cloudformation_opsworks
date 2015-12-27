@@ -255,13 +255,14 @@
         "EnableAutoHealing": "False",
         "AutoAssignElasticIps": "False",
         "AutoAssignPublicIps" : "True",
+        "CustomSecurityGroupIds" :  [ { "Ref": "wwwSecurityGroup" } ],
         "Name": { "Fn::Join" : [ "-", [ { "Ref": "AWS::StackName" }, "hex7" ] ] }, 
         "Shortname" : "www.hex7.com",
         "StackId" : { "Ref": "wwwOpsworksStack" },
         "Type" : "custom",
         "CustomRecipes": {
           "Configure" : [ "cookbook_hex7" ],
-          "Deploy" : [ "cookbook_hex7:deploy", "cookbook_www:restart" ],
+          "Deploy" : [ "cookbook_hex7::deploy", "cookbook_www::restart" ],
           "Setup" : [],
           "Shutdown" : [],
           "Undeploy" : []
@@ -275,13 +276,14 @@
         "EnableAutoHealing": "False",
         "AutoAssignElasticIps": "False",
         "AutoAssignPublicIps" : "True",
+        "CustomSecurityGroupIds" :  [ { "Ref": "wwwSecurityGroup" } ],
         "Name": { "Fn::Join" : [ "-", [ { "Ref": "AWS::StackName" }, "damnswank" ] ] }, 
         "Shortname" : "www.damnswank.com",
         "StackId" : { "Ref": "wwwOpsworksStack" },
         "Type" : "custom",
         "CustomRecipes": {
           "Configure" : [ "cookbook_damnswank" ],
-          "Deploy" : [ "cookbook_damnswank:deploy", "cookbook_www:restart" ],
+          "Deploy" : [ "cookbook_damnswank::deploy", "cookbook_www::restart" ],
           "Setup" : [],
           "Shutdown" : [],
           "Undeploy" : []
