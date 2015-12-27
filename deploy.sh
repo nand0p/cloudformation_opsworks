@@ -30,7 +30,7 @@ stackName="www-$(date +%Y%m%d-%H%M)"
 cfnFile="file://www_opsworks.json"
 clear
 echo
-echo "vpc creation $title $stackName"
+echo "vpc $stackName creation"
 echo
 echo
 echo "==> create $keyName key-pair:"
