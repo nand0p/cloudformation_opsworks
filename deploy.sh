@@ -32,11 +32,11 @@ echo
 echo "vpc creation $title $stackName"
 echo
 echo
-echo "create $stackName key-pair:"
+echo "==> create $stackName key-pair:"
 privateKeyValue=$(aws ec2 create-key-pair --key-name $stackName --query 'KeyMaterial' --output text)
 echo
 echo
-echo "load variables:"
+echo "==> load variables:"
 echo
 echo
 cfnParameters=" ParameterKey=wwwStackName,ParameterValue=$stackName "
@@ -50,17 +50,17 @@ cfnParameters+=" ParameterKey=KeyName,ParameterValue=$stackName "
 echo $cfnParameters
 echo
 echo
-echo "launch www stack:"
+echo "==> launch www stack:"
 echo
 echo
 aws cloudformation create-stack --stack-name $stackName --disable-rollback --template-body $cfnFile --parameters "ParameterKey=PrivateKey,ParameterValue=$privateKeyValue" $cfnParameters
 echo
 echo
-echo "wait for stack:"
+echo "==> wait for stack:"
 sleep 10
 echo
 echo
-echo "Write out private key $stackName.pem:"
+echo "==> Write out private key $stackName.pem:"
 echo
 echo
 aws cloudformation describe-stacks --stack-name $stackName|grep PrivateKey -A22|cut -f3 > $stackName.pem

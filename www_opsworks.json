@@ -180,7 +180,6 @@
           ]
         },
         "RootDeviceType": "ebs",
-        "Hostname": { "Ref": "AWS::StackName" },
         "InstanceType": { "Ref": "instanceType" },
         "LayerIds":  [
           { "Ref": "wwwOpsworksLayerHex7" },
