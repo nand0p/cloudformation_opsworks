@@ -1,0 +1,266 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "www",
+  "Parameters": {
+    "instanceType": {
+      "Type": "String",
+      "Default": "t2.micro"
+    },
+    "wwwPort": {
+      "Type": "String",
+      "Default": "80"
+    },
+    "os": { 
+      "Type": "String",
+      "Default": "Amazon Linux 2015.09"
+    },
+    "vpcCIDR": { "Type": "String" },
+    "public1CIDR": { "Type": "String" },
+    "public2CIDR": { "Type": "String" },
+    "wwwStackName": { "Type": "String" },
+    "wwwTrustedIP": { "Type": "String" },
+    "PrivateKey": { "Type": "String" },
+    "opsworksRoleARN": { "Type": "String" },
+    "opsworksProfileARN": { "Type": "String" },
+    "KeyName": { "Type": "AWS::EC2::KeyPair::KeyName" }
+  },
+  "Mappings": {
+    "AvailabilityZone": {
+      "us-east-1": {
+        "AZPublic1": "us-east-1a",
+        "AZPublic2": "us-east-1c"
+      }
+    }
+  },
+  "Resources": {
+    "wwwVPC": {
+      "Type": "AWS::EC2::VPC",
+      "Properties": {
+        "EnableDnsSupport": "true",
+        "EnableDnsHostnames": "true",
+        "CidrBlock": { "Ref": "vpcCIDR" },
+        "Tags": [{
+          "Key": "Name",
+          "Value": { "Ref": "AWS::StackName" }
+        }]
+      }
+    },
+    "wwwSubnetPublic1": {
+      "Type": "AWS::EC2::Subnet",
+      "Properties": {
+        "AvailabilityZone": {
+          "Fn::FindInMap": [
+            "AvailabilityZone", { "Ref": "AWS::Region" },
+            "AZPublic1"
+          ]
+        },
+        "VpcId": { "Ref": "wwwVPC" },
+        "CidrBlock": { "Ref": "public1CIDR" },
+        "Tags": [{
+          "Key": "Name",
+          "Value": { "Ref": "AWS::StackName" }
+        }]
+      }
+    },
+    "wwwSubnetPublic2": {
+      "Type": "AWS::EC2::Subnet",
+      "Properties": {
+        "AvailabilityZone": {
+          "Fn::FindInMap": [
+            "AvailabilityZone", { "Ref": "AWS::Region" },
+            "AZPublic2"
+          ]
+        },
+        "VpcId": { "Ref": "wwwVPC" },
+        "CidrBlock": { "Ref": "public2CIDR" },
+        "Tags": [{
+          "Key": "Name",
+          "Value": { "Ref": "AWS::StackName" }
+        }]
+      }
+    },
+    "wwwInternetGateway": {
+      "Type": "AWS::EC2::InternetGateway",
+      "Properties": {
+        "Tags": [{
+          "Key": "Name",
+          "Value": { "Ref": "AWS::StackName" }
+        }]
+      }
+    },
+    "wwwInternetGatewayAttach": {
+      "Type": "AWS::EC2::VPCGatewayAttachment",
+      "Properties": {
+        "VpcId": { "Ref": "wwwVPC" },
+        "InternetGatewayId": { "Ref": "wwwInternetGateway" }
+      }
+    },
+    "wwwRouteTable": {
+      "Type": "AWS::EC2::RouteTable",
+      "Properties": {
+        "VpcId": { "Ref": "wwwVPC" }
+      }
+    },
+    "wwwDefaultRoute": {
+      "Type": "AWS::EC2::Route",
+      "Properties": {
+        "RouteTableId": { "Ref": "wwwRouteTable" },
+        "DestinationCidrBlock": "0.0.0.0/0",
+        "GatewayId": { "Ref": "wwwInternetGateway" }
+      }
+    },
+    "wwwRouteTableAssociationSubnet1": {
+      "Type": "AWS::EC2::SubnetRouteTableAssociation",
+      "Properties": {
+        "SubnetId": { "Ref": "wwwSubnetPublic1" },
+        "RouteTableId": { "Ref": "wwwRouteTable" }
+      }
+    },
+    "wwwRouteTableAssociationSubnet2": {
+      "Type": "AWS::EC2::SubnetRouteTableAssociation",
+      "Properties": {
+        "SubnetId": { "Ref": "wwwSubnetPublic2" },
+        "RouteTableId": { "Ref": "wwwRouteTable" }
+      }
+    },
+    "wwwSecurityGroup": {
+      "Type": "AWS::EC2::SecurityGroup",
+      "Properties": {
+        "GroupDescription": "www security group",
+        "VpcId": { "Ref": "wwwVPC" },
+        "Tags": [{
+          "Key": "Name",
+          "Value": { "Ref": "AWS::StackName" }
+        }],
+        "SecurityGroupIngress": [ 
+          {
+            "IpProtocol": "tcp",
+            "FromPort": "80",
+            "ToPort": "80",
+            "CidrIp": "0.0.0.0/0"
+          }, 
+          {
+            "IpProtocol": "tcp",
+            "FromPort": "81",
+            "ToPort": "81",
+            "CidrIp": "0.0.0.0/0"
+          }, 
+          {
+            "IpProtocol": "tcp",
+            "FromPort": "22",
+            "ToPort": "22",
+            "CidrIp": { "Ref": "wwwTrustedIP" }
+          },
+          {
+            "IpProtocol": "tcp",
+            "FromPort": "22",
+            "ToPort": "22",
+            "CidrIp": { "Ref": "vpcCIDR" }
+          }
+        ]
+      }
+    },
+    "wwwOpsworksInstance": {
+      "Type": "AWS::OpsWorks::Instance",
+      "Properties": {
+        "AvailabilityZone" : {
+          "Fn::FindInMap": [ 
+            "AvailabilityZone", { "Ref": "AWS::Region" }, 
+            "AZPublic1" 
+          ]
+        },
+        "RootDeviceType": "ebs",
+        "InstanceType": { "Ref": "instanceType" },
+        "LayerIds":  [ { "Ref": "wwwOpsworksLayer" } ],
+        "SshKeyName": { "Ref": "KeyName" },
+        "StackId": { "Ref": "wwwOpsworksStack" },
+        "SubnetId": { "Ref": "wwwSubnetPublic1" },
+        "Os": { "Ref": "os" }
+      }
+    },
+    "wwwOpsworksELB": {
+      "Type": "AWS::OpsWorks::ElasticLoadBalancerAttachment",
+      "Properties": {
+        "ElasticLoadBalancerName": { "Ref": "wwwELB" },
+        "LayerId": { "Ref": "wwwOpsworksLayer" }
+      }
+    },
+    "wwwOpsworksStack": {
+      "Type" : "AWS::OpsWorks::Stack",
+      "Properties" : {
+        "DefaultInstanceProfileArn" : { "Ref": "opsworksProfileARN" },
+        "DefaultSshKeyName" : { "Ref": "KeyName" },
+        "DefaultSubnetId" : { "Ref": "wwwSubnetPublic1" },
+        "Name" : { "Ref": "AWS::StackName" },
+        "ServiceRoleArn" : { "Ref": "opsworksRoleARN" },
+        "UseOpsworksSecurityGroups" : "False",
+        "VpcId" : { "Ref": "wwwVPC" } 
+      }
+    },
+    "wwwOpsworksLayer": {
+      "Type": "AWS::OpsWorks::Layer",
+      "Properties": {
+        "AutoAssignElasticIps" : "False",
+        "AutoAssignPublicIps" : "True",
+        "CustomSecurityGroupIds" :  [ { "Ref": "wwwSecurityGroup" } ],
+        "EnableAutoHealing" : "True",
+        "Name" : { "Ref": "AWS::StackName" },
+        "Shortname" : "www",
+        "StackId" : { "Ref": "wwwOpsworksStack" },
+        "Type" : "php-app",
+        "Packages": [ "jwhois" ]
+      }
+    },
+    "wwwOpsworksApp": {
+      "Type": "AWS::OpsWorks::App",
+      "Properties": {
+        "AppSource": { "Url" : "https://github.com/nand0p/hex7" },
+        "Description": "hex7 deployment",
+        "Name": { "Ref": "AWS::StackName" },
+        "StackId": { "Ref": "wwwOpsworksStack" },
+        "Type": "php"
+      }
+    },
+    "wwwELB": {
+      "Type": "AWS::ElasticLoadBalancing::LoadBalancer",
+      "Properties": {
+        "SecurityGroups": [ { "Fn::GetAtt" : [ "wwwSecurityGroup", "GroupId" ] } ],
+        "Subnets": [ { 
+          "Ref": "wwwSubnetPublic1", 
+          "Ref": "wwwSubnetPublic2"
+        } ],
+        "Listeners": [ {
+          "LoadBalancerPort": "80",
+          "InstancePort": { "Ref" : "wwwPort" },
+          "Protocol": "HTTP"
+        } ],
+        "HealthCheck": {
+          "Target": {
+            "Fn::Join": [ "", [ "HTTP:", { "Ref" : "wwwPort" }, "/index.php" ] ]
+          },
+          "HealthyThreshold": "3",
+          "UnhealthyThreshold": "5",
+          "Interval": "30",
+          "Timeout": "5"
+        }
+      }
+    }
+  },
+  "Outputs": {
+    "wwwVPC": {
+      "Value": { "Ref": "wwwVPC" }
+    },
+    "wwwSubnet1": {
+      "Value": { "Ref": "wwwSubnetPublic1" }
+    },
+    "wwwSubnet2": {
+      "Value": { "Ref": "wwwSubnetPublic2" }
+    },
+    "wwwTrustedIP": {
+      "Value": { "Ref": "wwwTrustedIP" }
+    },
+    "KeyName": {
+      "Value": { "Ref": "KeyName" }
+    }
+  }
+}
