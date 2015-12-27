@@ -33,7 +33,8 @@ echo
 echo "vpc creation $title $stackName"
 echo
 echo
-echo "==> create $stackName key-pair $keyName:"
+echo "==> create $keyName key-pair:"
+aws ec2 delete-key-pair --key-name $keyName
 privateKeyValue=$(aws ec2 create-key-pair --key-name $keyName --query 'KeyMaterial' --output text)
 echo
 echo
