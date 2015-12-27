@@ -6,9 +6,13 @@
       "Type": "String",
       "Default": "t2.micro"
     },
-    "wwwPort": {
+    "wwwPortHex7": {
       "Type": "String",
-      "Default": "80"
+      "Default": "81"
+    },
+    "wwwPortDamnswank": {
+      "Type": "String",
+      "Default": "82"
     },
     "os": { 
       "Type": "String",
@@ -178,8 +182,7 @@
         "RootDeviceType": "ebs",
         "InstanceType": { "Ref": "instanceType" },
         "LayerIds":  [
-          { "Ref": "wwwOpsworksLayer" },
-          { "Ref": "wwwOpsworksLayerHexseven" },
+          { "Ref": "wwwOpsworksLayerHex7" },
           { "Ref": "wwwOpsworksLayerDamnswank" } 
         ],
         "SshKeyName": { "Ref": "KeyName" },
@@ -188,11 +191,18 @@
         "Os": { "Ref": "os" }
       }
     },
-    "wwwOpsworksELB": {
+    "wwwOpsworksELBHex7": {
       "Type": "AWS::OpsWorks::ElasticLoadBalancerAttachment",
       "Properties": {
-        "ElasticLoadBalancerName": { "Ref": "wwwELB" },
-        "LayerId": { "Ref": "wwwOpsworksLayer" }
+        "ElasticLoadBalancerName": { "Ref": "wwwELBHex7" },
+        "LayerId": { "Ref": "wwwOpsworksLayerHex7" }
+      }
+    },
+    "wwwOpsworksELBDamnswank": {
+      "Type": "AWS::OpsWorks::ElasticLoadBalancerAttachment",
+      "Properties": {
+        "ElasticLoadBalancerName": { "Ref": "wwwELBDamnswank" },
+        "LayerId": { "Ref": "wwwOpsworksLayerDamnswank" }
       }
     },
     "wwwOpsworksStack": {
@@ -216,27 +226,7 @@
         }
       }
     },
-    "wwwOpsworksLayer": {
-      "Type": "AWS::OpsWorks::Layer",
-      "Properties": {
-        "AutoAssignElasticIps" : "False",
-        "AutoAssignPublicIps" : "True",
-        "CustomSecurityGroupIds" :  [ { "Ref": "wwwSecurityGroup" } ],
-        "EnableAutoHealing" : "True",
-        "Name" : { "Ref": "AWS::StackName" },
-        "Shortname" : "www",
-        "StackId" : { "Ref": "wwwOpsworksStack" },
-        "Type" : "custom",
-        "CustomRecipes": {
-          "Configure" : [],
-          "Deploy" : [],
-          "Setup" : [ "opsworks_cookbook" ],
-          "Shutdown" : [],
-          "Undeploy" : []
-        }
-      }
-    },
-    "wwwOpsworksLayerHexseven": {
+    "wwwOpsworksLayerHex7": {
       "Type": "AWS::OpsWorks::Layer",
       "Properties": {
         "AutoAssignElasticIps" : "False",
@@ -250,7 +240,7 @@
         "CustomRecipes": {
           "Configure" : [],
           "Deploy" : [],
-          "Setup" : [ "opsworks_cookbook" ],
+          "Setup" : [ "opsworks_cookbook_hex7" ],
           "Shutdown" : [],
           "Undeploy" : []
         }
@@ -270,20 +260,10 @@
         "CustomRecipes": {
           "Configure" : [],
           "Deploy" : [],
-          "Setup" : [ "opsworks_cookbook" ],
+          "Setup" : [ "opsworks_cookbook_damnswank" ],
           "Shutdown" : [],
           "Undeploy" : []
         }
-      }
-    },
-    "wwwOpsworksApp": {
-      "Type": "AWS::OpsWorks::App",
-      "Properties": {
-        "AppSource": { "Url" : "https://github.com/nand0p/hex7" },
-        "Description": "hex7 deployment",
-        "Name": { "Ref": "AWS::StackName" },
-        "StackId": { "Ref": "wwwOpsworksStack" },
-        "Type": "other"
       }
     },
     "wwwOpsworksAppHex7": {
@@ -306,7 +286,7 @@
         "Type": "other"
       }
     },
-    "wwwELB": {
+    "wwwELBHex7": {
       "Type": "AWS::ElasticLoadBalancing::LoadBalancer",
       "Properties": {
         "SecurityGroups": [ { "Fn::GetAtt" : [ "wwwSecurityGroup", "GroupId" ] } ],
@@ -316,14 +296,38 @@
         } ],
         "Listeners": [ {
           "LoadBalancerPort": "80",
-          "InstancePort": { "Ref" : "wwwPort" },
+          "InstancePort": { "Ref" : "wwwPortHex7" },
           "Protocol": "HTTP"
         } ],
         "HealthCheck": {
           "Target": {
-            "Fn::Join": [ "", [ "HTTP:", { "Ref" : "wwwPort" }, "/index.php" ] ]
+            "Fn::Join": [ "", [ "HTTP:", { "Ref" : "wwwPortHex7" }, "/index.php" ] ]
           },
-          "HealthyThreshold": "3",
+          "HealthyThreshold": "2",
+          "UnhealthyThreshold": "5",
+          "Interval": "30",
+          "Timeout": "5"
+        }
+      }
+    },
+    "wwwELBDamnswank": {
+      "Type": "AWS::ElasticLoadBalancing::LoadBalancer",
+      "Properties": {
+        "SecurityGroups": [ { "Fn::GetAtt" : [ "wwwSecurityGroup", "GroupId" ] } ],
+        "Subnets": [ {
+          "Ref": "wwwSubnetPublic1",
+          "Ref": "wwwSubnetPublic2"
+        } ],
+        "Listeners": [ {
+          "LoadBalancerPort": "80",
+          "InstancePort": { "Ref" : "wwwPortDamnswank" },
+          "Protocol": "HTTP"
+        } ],
+        "HealthCheck": {
+          "Target": {
+            "Fn::Join": [ "", [ "HTTP:", { "Ref" : "wwwPortDamnswank" }, "/index.php" ] ]
+          },
+          "HealthyThreshold": "2",
           "UnhealthyThreshold": "5",
           "Interval": "30",
           "Timeout": "5"

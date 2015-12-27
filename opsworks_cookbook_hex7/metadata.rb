@@ -1,0 +1,7 @@
+name             'opsworks_cookbook_hex7'
+maintainer       'YOUR_NAME'
+maintainer_email 'YOUR_EMAIL'
+license          'All rights reserved'
+description      'Installs/Configures opsworks_cookbook_hex7'
+long_description 'Installs/Configures opsworks_cookbook_hex7'
+version          '0.1.0'

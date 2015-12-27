@@ -1,4 +1,4 @@
-# opsworks_cookbook-cookbook
+# opsworks_cookbook_damnswank-cookbook
 
 TODO: Enter the cookbook description here.
 
@@ -16,7 +16,7 @@ TODO: List your supported platforms.
     <th>Default</th>
   </tr>
   <tr>
-    <td><tt>['opsworks_cookbook']['bacon']</tt></td>
+    <td><tt>['opsworks_cookbook_damnswank']['bacon']</tt></td>
     <td>Boolean</td>
     <td>whether to include bacon</td>
     <td><tt>true</tt></td>
@@ -25,14 +25,14 @@ TODO: List your supported platforms.
 
 ## Usage
 
-### opsworks_cookbook::default
+### opsworks_cookbook_damnswank::default
 
-Include `opsworks_cookbook` in your node's `run_list`:
+Include `opsworks_cookbook_damnswank` in your node's `run_list`:
 
 ```json
 {
   "run_list": [
-    "recipe[opsworks_cookbook::default]"
+    "recipe[opsworks_cookbook_damnswank::default]"
   ]
 }
 ```

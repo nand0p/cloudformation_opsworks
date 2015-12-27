@@ -1,5 +1,5 @@
 #
-# Cookbook Name:: opsworks_cookbook
+# Cookbook Name:: opsworks_cookbook_damnswank
 # Recipe:: default
 #
 # Copyright (C) 2015 YOUR_NAME

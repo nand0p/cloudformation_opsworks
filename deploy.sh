@@ -16,12 +16,12 @@ then
     echo
     echo "Environment variables must be set: "
     echo 
-    echo "WWW_VPC_CIDR"
-    echo "WWW_PUBLIC1_CIDR"
-    echo "WWW_PUBLIC2_CIDR"
-    echo "WWW_TRUSTED_IP"
-    echo "WWW_OPSWORKS_ROLE_ARN"
-    echo "WWW_OPSWORKS_PROFILE_ARN"
+    echo "WWW_VPC_CIDR: $envVarTest1"
+    echo "WWW_PUBLIC1_CIDR: $envVarTest2"
+    echo "WWW_PUBLIC2_CIDR: $envVarTest3"
+    echo "WWW_TRUSTED_IP: $envVarTest4"
+    echo "WWW_OPSWORKS_ROLE_ARN: $envVarTest5"
+    echo "WWW_OPSWORKS_PROFILE_ARN: $envVarTest6"
     echo
     exit
 fi
@@ -53,7 +53,7 @@ echo
 echo "launch www stack:"
 echo
 echo
-aws cloudformation create-stack --stack-name $stackName --template-body $cfnFile --parameters "ParameterKey=PrivateKey,ParameterValue=$privateKeyValue" $cfnParameters
+aws cloudformation create-stack --stack-name $stackName --disable-rollback --template-body $cfnFile --parameters "ParameterKey=PrivateKey,ParameterValue=$privateKeyValue" $cfnParameters
 echo
 echo
 echo "wait for stack:"
