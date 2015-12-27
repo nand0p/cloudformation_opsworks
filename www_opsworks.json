@@ -147,6 +147,12 @@
           }, 
           {
             "IpProtocol": "tcp",
+            "FromPort": "82",
+            "ToPort": "82",
+            "CidrIp": "0.0.0.0/0"
+          }, 
+          {
+            "IpProtocol": "tcp",
             "FromPort": "22",
             "ToPort": "22",
             "CidrIp": { "Ref": "wwwTrustedIP" }
@@ -187,14 +193,23 @@
     },
     "wwwOpsworksStack": {
       "Type" : "AWS::OpsWorks::Stack",
-      "Properties" : {
-        "DefaultInstanceProfileArn" : { "Ref": "opsworksProfileARN" },
-        "DefaultSshKeyName" : { "Ref": "KeyName" },
-        "DefaultSubnetId" : { "Ref": "wwwSubnetPublic1" },
-        "Name" : { "Ref": "AWS::StackName" },
-        "ServiceRoleArn" : { "Ref": "opsworksRoleARN" },
-        "UseOpsworksSecurityGroups" : "False",
-        "VpcId" : { "Ref": "wwwVPC" } 
+      "Properties": {
+        "DefaultInstanceProfileArn": { "Ref": "opsworksProfileARN" },
+        "DefaultSshKeyName": { "Ref": "KeyName" },
+        "DefaultSubnetId": { "Ref": "wwwSubnetPublic1" },
+        "Name": { "Ref": "AWS::StackName" },
+        "ServiceRoleArn": { "Ref": "opsworksRoleARN" },
+        "UseOpsworksSecurityGroups": "False",
+        "VpcId": { "Ref": "wwwVPC" },
+        "UseCustomCookbooks": "True",
+        "ConfigurationManager": { 
+          "Version": "11.10",
+          "Name": "Chef" 
+        },
+        "CustomCookbooksSource": {
+          "Type" : "git",
+          "Url" : "https://github.com/nand0p/cloudformation_opsworks"
+        }
       }
     },
     "wwwOpsworksLayer": {
@@ -211,6 +226,34 @@
         "Packages": [ "jwhois" ]
       }
     },
+    "wwwOpsworksLayerHexseven": {
+      "Type": "AWS::OpsWorks::Layer",
+      "Properties": {
+        "AutoAssignElasticIps" : "False",
+        "AutoAssignPublicIps" : "True",
+        "CustomSecurityGroupIds" :  [ { "Ref": "wwwSecurityGroup" } ],
+        "EnableAutoHealing" : "True",
+        "Name": { "Fn::Join" : [ "-", [ { "Ref": "AWS::StackName" }, "hex7" ] ] }, 
+        "Shortname" : "www-hex7",
+        "StackId" : { "Ref": "wwwOpsworksStack" },
+        "Type" : "custom",
+        "Packages": [ "jwhois" ]
+      }
+    },
+    "wwwOpsworksLayerDamnswank": {
+      "Type": "AWS::OpsWorks::Layer",
+      "Properties": {
+        "AutoAssignElasticIps" : "False",
+        "AutoAssignPublicIps" : "True",
+        "CustomSecurityGroupIds" :  [ { "Ref": "wwwSecurityGroup" } ],
+        "EnableAutoHealing" : "True",
+        "Name": { "Fn::Join" : [ "-", [ { "Ref": "AWS::StackName" }, "damnswank" ] ] }, 
+        "Shortname" : "www-damnswank",
+        "StackId" : { "Ref": "wwwOpsworksStack" },
+        "Type" : "custom",
+        "Packages": [ "jwhois" ]
+      }
+    },
     "wwwOpsworksApp": {
       "Type": "AWS::OpsWorks::App",
       "Properties": {
@@ -219,6 +262,26 @@
         "Name": { "Ref": "AWS::StackName" },
         "StackId": { "Ref": "wwwOpsworksStack" },
         "Type": "php"
+      }
+    },
+    "wwwOpsworksAppHex7": {
+      "Type": "AWS::OpsWorks::App",
+      "Properties": {
+        "AppSource": { "Url" : "https://github.com/nand0p/hex7" },
+        "Description": "hex7 deployment",
+        "Name": { "Fn::Join" : [ "-", [ { "Ref": "AWS::StackName" }, "hex7" ] ] }, 
+        "StackId": { "Ref": "wwwOpsworksStack" },
+        "Type": "other"
+      }
+    },
+    "wwwOpsworksAppDamnswank": {
+      "Type": "AWS::OpsWorks::App",
+      "Properties": {
+        "AppSource": { "Url" : "https://github.com/nand0p/damnswank" },
+        "Description": "damnswank deployment",
+        "Name": { "Fn::Join" : [ "-", [ { "Ref": "AWS::StackName" }, "damnswank" ] ] }, 
+        "StackId": { "Ref": "wwwOpsworksStack" },
+        "Type": "other"
       }
     },
     "wwwELB": {

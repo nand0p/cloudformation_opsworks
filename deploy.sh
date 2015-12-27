@@ -26,14 +26,14 @@ then
     exit
 fi
 stackName="www-$(date +%Y%m%d-%H%M)"
-cfnFile="file://www.json"
+cfnFile="file://www_opsworks.json"
 title="www vpc creation"
 clear
 echo
 echo "$title $stackName launch script"
 echo
 echo
-echo "create $stackEC2 key-pair"
+echo "create $stackName key-pair"
 privateKeyValue=$(aws ec2 create-key-pair --key-name $stackName --query 'KeyMaterial' --output text)
 echo
 echo
@@ -65,6 +65,6 @@ echo "Write out private key $stackName.pem"
 echo
 echo
 aws cloudformation describe-stacks --stack-name $stackName|grep PrivateKey -A22|cut -f3 > $stackName.pem
-chmod 0400 -c $stackName.pem
+chmod -c 0400 $stackName.pem
 echo
 echo
