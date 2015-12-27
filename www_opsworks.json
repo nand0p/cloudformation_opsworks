@@ -180,6 +180,7 @@
           ]
         },
         "RootDeviceType": "ebs",
+        "Hostname": { "Ref": "AWS::StackName" },
         "InstanceType": { "Ref": "instanceType" },
         "LayerIds":  [
           { "Ref": "wwwOpsworksLayerHex7" },
@@ -240,7 +241,7 @@
         "CustomRecipes": {
           "Configure" : [],
           "Deploy" : [],
-          "Setup" : [ "opsworks_cookbook_hex7" ],
+          "Setup" : [ "cookbook_hex7" ],
           "Shutdown" : [],
           "Undeploy" : []
         }
@@ -260,7 +261,7 @@
         "CustomRecipes": {
           "Configure" : [],
           "Deploy" : [],
-          "Setup" : [ "opsworks_cookbook_damnswank" ],
+          "Setup" : [ "cookbook_damnswank" ],
           "Shutdown" : [],
           "Undeploy" : []
         }
