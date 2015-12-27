@@ -34,7 +34,7 @@ echo "vpc creation $title $stackName"
 echo
 echo
 echo "==> create $stackName key-pair $keyName:"
-privateKeyValue=$(aws ec2 create-key-pair --key-name $stackName --query 'KeyMaterial' --output text)
+privateKeyValue=$(aws ec2 create-key-pair --key-name $keyName --query 'KeyMaterial' --output text)
 echo
 echo
 echo "==> load variables:"

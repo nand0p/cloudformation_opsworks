@@ -238,9 +238,9 @@
         "StackId" : { "Ref": "wwwOpsworksStack" },
         "Type" : "custom",
         "CustomRecipes": {
-          "Configure" : [],
+          "Configure" : [ "cookbook_hex7" ],
           "Deploy" : [],
-          "Setup" : [ "cookbook_hex7", "cookbook_www" ],
+          "Setup" : [ "cookbook_www" ],
           "Shutdown" : [],
           "Undeploy" : []
         }
@@ -258,9 +258,9 @@
         "StackId" : { "Ref": "wwwOpsworksStack" },
         "Type" : "custom",
         "CustomRecipes": {
-          "Configure" : [],
+          "Configure" : [ "cookbook_damnswank" ],
           "Deploy" : [],
-          "Setup" : [ "cookbook_damnswank", "cookbook_www" ],
+          "Setup" : [ "cookbook_www" ],
           "Shutdown" : [],
           "Undeploy" : []
         }

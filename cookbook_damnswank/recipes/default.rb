@@ -1,12 +1,3 @@
-#
-# Cookbook Name:: opsworks_cookbook_damnswank
-# Recipe:: default
-#
-# Copyright (C) 2015 YOUR_NAME
-#
-# All rights reserved - Do Not Redistribute
-#
-
-package 'epel-release'
-package 'nginx'
-package 'php-fpm'
+template '/etc/nginx/conf.d/damnswank.conf'
+  source 'nginx.conf.erb'
+end
