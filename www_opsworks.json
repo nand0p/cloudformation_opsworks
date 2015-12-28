@@ -261,7 +261,7 @@
         "StackId" : { "Ref": "wwwOpsworksStack" },
         "Type" : "custom",
         "CustomRecipes": {
-          "Configure" : [ "cookbook_hex7" ],
+          "Configure" : [ "cookbook_hex7::configure", "cookbook_hex7::deploy", "cookbook_www::restart" ],
           "Deploy" : [ "cookbook_hex7::deploy", "cookbook_www::restart" ],
           "Setup" : [],
           "Shutdown" : [],
@@ -282,7 +282,7 @@
         "StackId" : { "Ref": "wwwOpsworksStack" },
         "Type" : "custom",
         "CustomRecipes": {
-          "Configure" : [ "cookbook_damnswank" ],
+          "Configure" : [ "cookbook_damnswank::configure", "cookbook_damnswank::deploy", "cookbook_www::restart" ],
           "Deploy" : [ "cookbook_damnswank::deploy", "cookbook_www::restart" ],
           "Setup" : [],
           "Shutdown" : [],
