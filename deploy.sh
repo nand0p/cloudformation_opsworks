@@ -1,5 +1,6 @@
 #!/bin/bash
 
+clear
 envVarTest1=$(env|grep WWW_VPC_CIDR |cut -f2 -d=)
 envVarTest2=$(env|grep WWW_PUBLIC1_CIDR |cut -f2 -d=)
 envVarTest3=$(env|grep WWW_PUBLIC2_CIDR |cut -f2 -d=)
@@ -26,14 +27,10 @@ then
     exit
 fi
 keyName=www
-stackOpsworksName="www-$(date +%Y%m%d-%H%M)"
-stackBeanstalkName="blog-$(date +%Y%m%d-%H%M)"
-cfnOpsworksFile="file://www_opsworks.json"
-cfnBeanstalkFile="file://www_beanstalk.json"
-clear
+stackName="www-$(date +%Y%m%d-%H%M)"
+cfnFile="file://cloudformation.json"
 echo
-echo "$stackOpsworksName :: $cfnOpsworksFile"
-echo "$stackBeanstalkName :: $cfnBeanstalkFile"
+echo "$stackName :: $cfnFile"
 echo
 echo
 echo "==> create $keyName key-pair:"
@@ -57,7 +54,7 @@ echo
 echo "==> launch opsworks stack:"
 echo
 echo
-aws cloudformation create-stack --stack-name $stackOpsworksName --disable-rollback --template-body $cfnOpsworksFile --parameters "ParameterKey=PrivateKey,ParameterValue=$privateKeyValue" $cfnParameters
+aws cloudformation create-stack --stack-name $stackName --disable-rollback --template-body $cfnFile --parameters "ParameterKey=PrivateKey,ParameterValue=$privateKeyValue" $cfnParameters
 echo
 echo
 echo "==> wait for stack:"
@@ -68,28 +65,7 @@ echo "==> Write out private key $keyName.pem:"
 echo
 echo
 rm -fv $keyName.pem
-aws cloudformation describe-stacks --stack-name $stackOpsworksName|grep PrivateKey -A22|cut -f3 > $keyName.pem
+aws cloudformation describe-stacks --stack-name $stackName|grep PrivateKey -A22|cut -f3 > $keyName.pem
 chmod -c 0400 $keyName.pem
-echo
-echo
-echo
-echo "==> source bundle to s3:"
-echo
-echo
-rm -fv blog.zip
-echo
-echo
-origin=$(pwd | rev | cut -f1 -d/ | rev)
-cd ../hex7 && zip ../$origin/blog.zip -r *
-cd ../$origin
-echo
-echo
-aws s3 cp blog.zip s3://hex7/
-echo
-echo
-echo "==> launch beanstalk stack:"
-echo
-echo
-aws cloudformation create-stack --stack-name $stackBeanstalkName --disable-rollback --template-body $cfnBeanstalkFile --parameters "ParameterKey=KeyName,ParameterValue=$keyName" 
 echo
 echo
