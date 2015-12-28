@@ -4,7 +4,7 @@
   "Parameters": {
     "instanceType": {
       "Type": "String",
-      "Default": "t2.nano"
+      "Default": "t2.micro"
     },
     "wwwPortHex7": {
       "Type": "String",
