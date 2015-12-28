@@ -60,6 +60,19 @@ echo
 aws cloudformation create-stack --stack-name $stackOpsworksName --disable-rollback --template-body $cfnOpsworksFile --parameters "ParameterKey=PrivateKey,ParameterValue=$privateKeyValue" $cfnParameters
 echo
 echo
+echo "==> wait for stack:"
+sleep 5
+echo
+echo
+echo "==> Write out private key $keyName.pem:"
+echo
+echo
+rm -fv $keyName.pem
+aws cloudformation describe-stacks --stack-name $stackOpsworksName|grep PrivateKey -A22|cut -f3 > $keyName.pem
+chmod -c 0400 $keyName.pem
+echo
+echo
+echo
 echo "==> source bundle to s3:"
 echo
 echo
@@ -77,18 +90,6 @@ echo
 echo "==> launch beanstalk stack:"
 echo
 echo
-aws cloudformation create-stack --stack-name $stackBeanstalkName --disable-rollback --template-body $cfnBeanstalkFile --parameters "ParameterKey=PrivateKey,ParameterValue=$privateKeyValue" $cfnParameters
-echo
-echo
-echo "==> wait for stack:"
-sleep 10
-echo
-echo
-echo "==> Write out private key $keyName.pem:"
-echo
-echo
-rm -fv $keyName.pem
-aws cloudformation describe-stacks --stack-name $stackOpsworksName|grep PrivateKey -A22|cut -f3 > $keyName.pem
-chmod -c 0400 $keyName.pem
+aws cloudformation create-stack --stack-name $stackBeanstalkName --disable-rollback --template-body $cfnBeanstalkFile --parameters "ParameterKey=KeyName,ParameterValue=$keyName" 
 echo
 echo
