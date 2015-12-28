@@ -1,0 +1,242 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "www-beanstalk",
+  "Parameters": {
+    "instanceType": {
+      "Type": "String",
+      "Default": "t2.micro"
+    },
+    "wwwPortHex7": {
+      "Type": "String",
+      "Default": "81"
+    },
+    "wwwPortDamnswank": {
+      "Type": "String",
+      "Default": "82"
+    },
+    "os": { 
+      "Type": "String",
+      "Default": "Amazon Linux 2015.09"
+    },
+    "vpcCIDR": { "Type": "String" },
+    "public1CIDR": { "Type": "String" },
+    "public2CIDR": { "Type": "String" },
+    "wwwStackName": { "Type": "String" },
+    "wwwTrustedIP": { "Type": "String" },
+    "PrivateKey": { "Type": "String" },
+    "opsworksRoleARN": { "Type": "String" },
+    "opsworksProfileARN": { "Type": "String" },
+    "KeyName": { "Type": "AWS::EC2::KeyPair::KeyName" }
+  },
+  "Mappings": {
+    "AvailabilityZone": {
+      "us-east-1": {
+        "AZPublic1": "us-east-1a",
+        "AZPublic2": "us-east-1c"
+      }
+    }
+  },
+  "Resources": {
+    "wwwVPC": {
+      "Type": "AWS::EC2::VPC",
+      "Properties": {
+        "EnableDnsSupport": "true",
+        "EnableDnsHostnames": "true",
+        "CidrBlock": { "Ref": "vpcCIDR" },
+        "Tags": [{
+          "Key": "Name",
+          "Value": { "Ref": "AWS::StackName" }
+        }]
+      }
+    },
+    "wwwSubnetPublic1": {
+      "Type": "AWS::EC2::Subnet",
+      "Properties": {
+        "AvailabilityZone": {
+          "Fn::FindInMap": [
+            "AvailabilityZone", { "Ref": "AWS::Region" },
+            "AZPublic1"
+          ]
+        },
+        "VpcId": { "Ref": "wwwVPC" },
+        "CidrBlock": { "Ref": "public1CIDR" },
+        "Tags": [{
+          "Key": "Name",
+          "Value": { "Ref": "AWS::StackName" }
+        }]
+      }
+    },
+    "wwwSubnetPublic2": {
+      "Type": "AWS::EC2::Subnet",
+      "Properties": {
+        "AvailabilityZone": {
+          "Fn::FindInMap": [
+            "AvailabilityZone", { "Ref": "AWS::Region" },
+            "AZPublic2"
+          ]
+        },
+        "VpcId": { "Ref": "wwwVPC" },
+        "CidrBlock": { "Ref": "public2CIDR" },
+        "Tags": [{
+          "Key": "Name",
+          "Value": { "Ref": "AWS::StackName" }
+        }]
+      }
+    },
+    "wwwInternetGateway": {
+      "Type": "AWS::EC2::InternetGateway",
+      "Properties": {
+        "Tags": [{
+          "Key": "Name",
+          "Value": { "Ref": "AWS::StackName" }
+        }]
+      }
+    },
+    "wwwInternetGatewayAttach": {
+      "Type": "AWS::EC2::VPCGatewayAttachment",
+      "Properties": {
+        "VpcId": { "Ref": "wwwVPC" },
+        "InternetGatewayId": { "Ref": "wwwInternetGateway" }
+      }
+    },
+    "wwwRouteTable": {
+      "Type": "AWS::EC2::RouteTable",
+      "Properties": {
+        "VpcId": { "Ref": "wwwVPC" }
+      }
+    },
+    "wwwDefaultRoute": {
+      "Type": "AWS::EC2::Route",
+      "Properties": {
+        "RouteTableId": { "Ref": "wwwRouteTable" },
+        "DestinationCidrBlock": "0.0.0.0/0",
+        "GatewayId": { "Ref": "wwwInternetGateway" }
+      }
+    },
+    "wwwRouteTableAssociationSubnet1": {
+      "Type": "AWS::EC2::SubnetRouteTableAssociation",
+      "Properties": {
+        "SubnetId": { "Ref": "wwwSubnetPublic1" },
+        "RouteTableId": { "Ref": "wwwRouteTable" }
+      }
+    },
+    "wwwRouteTableAssociationSubnet2": {
+      "Type": "AWS::EC2::SubnetRouteTableAssociation",
+      "Properties": {
+        "SubnetId": { "Ref": "wwwSubnetPublic2" },
+        "RouteTableId": { "Ref": "wwwRouteTable" }
+      }
+    },
+    "wwwSecurityGroup": {
+      "Type": "AWS::EC2::SecurityGroup",
+      "Properties": {
+        "GroupDescription": "www security group",
+        "VpcId": { "Ref": "wwwVPC" },
+        "Tags": [{
+          "Key": "Name",
+          "Value": { "Ref": "AWS::StackName" }
+        }],
+        "SecurityGroupIngress": [ 
+          {
+            "IpProtocol": "tcp",
+            "FromPort": "80",
+            "ToPort": "80",
+            "CidrIp": "0.0.0.0/0"
+          }, 
+          {
+            "IpProtocol": "tcp",
+            "FromPort": "81",
+            "ToPort": "81",
+            "CidrIp": "0.0.0.0/0"
+          }, 
+          {
+            "IpProtocol": "tcp",
+            "FromPort": "82",
+            "ToPort": "82",
+            "CidrIp": "0.0.0.0/0"
+          }, 
+          {
+            "IpProtocol": "tcp",
+            "FromPort": "22",
+            "ToPort": "22",
+            "CidrIp": { "Ref": "wwwTrustedIP" }
+          },
+          {
+            "IpProtocol": "tcp",
+            "FromPort": "22",
+            "ToPort": "22",
+            "CidrIp": { "Ref": "vpcCIDR" }
+          }
+        ]
+      }
+    },
+    "wwwBlogApp": {
+      "Type": "AWS::ElasticBeanstalk::Application",
+      "Properties": {
+        "ApplicationName": "BlogApp",
+        "Description": "BlogApp"
+      }
+    },
+    "wwwBlogAppVersion": {
+      "Type": "AWS::ElasticBeanstalk::ApplicationVersion",
+      "Properties": {
+        "ApplicationName": { "Ref": "wwwBlogApp" },
+        "SourceBundle": {
+          "S3Bucket": "hex7",
+          "S3Key": "blog.zip"
+        }
+      }
+    },
+    "wwwBlogTemplate": {
+      "Type": "AWS::ElasticBeanstalk::ConfigurationTemplate",
+      "Properties": {
+        "ApplicationName": { "Ref": "wwwBlogApp" },
+        "Description": "BlogApp Template",
+        "OptionSettings": [{
+          "Namespace": "aws:autoscaling:asg",
+          "OptionName": "MinSize",
+          "Value": "1"
+        }, {
+          "Namespace": "aws:autoscaling:asg",
+          "OptionName": "MaxSize",
+          "Value": "1"
+        }, {
+          "Namespace": "aws:elasticbeanstalk:environment",
+          "OptionName": "EnvironmentType",
+          "Value": "LoadBalanced"
+        }, {
+          "Namespace": "aws:autoscaling:launchconfiguration",
+          "OptionName": "EC2KeyName",
+          "Value": { "Ref": "KeyName" }
+        }],
+        "SolutionStackName": "64bit Amazon Linux 2015.09 v2.0.4 running PHP 5.6"
+      }
+    },
+    "wwwBlogEnvironment": {
+      "Type": "AWS::ElasticBeanstalk::Environment",
+      "Properties": {
+        "ApplicationName": { "Ref": "wwwBlogApp" },
+        "Description": "Blog Environment",
+        "TemplateName": { "Ref": "wwwBlogTemplate" },
+        "VersionLabel": { "Ref": "wwwBlogAppVersion" }
+      }
+    }
+  },
+  "Outputs": {
+    "wwwVPC": {
+      "Value": { "Ref": "wwwVPC" }
+    },
+    "wwwSubnet1": {
+      "Value": { "Ref": "wwwSubnetPublic1" }
+    },
+    "wwwSubnet2": {
+      "Value": { "Ref": "wwwSubnetPublic2" }
+    },
+    "wwwTrustedIP": {
+      "Value": { "Ref": "wwwTrustedIP" }
+    },
+    "KeyName": {
+      "Value": { "Ref": "KeyName" }
+    }
+  }
+}

@@ -8,5 +8,6 @@
 # TODO
 
 - move instance profile and service role to cfn
-- add s3 elb logging
+- s3 elb logging
 - cloudwatch alarms
+- route53 dns records

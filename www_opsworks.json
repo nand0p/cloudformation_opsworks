@@ -1,6 +1,6 @@
 {
   "AWSTemplateFormatVersion": "2010-09-09",
-  "Description": "www",
+  "Description": "www-opsworks",
   "Parameters": {
     "instanceType": {
       "Type": "String",
